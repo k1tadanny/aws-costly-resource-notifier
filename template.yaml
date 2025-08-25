@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  TopicArn:
+    Type: String
+
+  AggregatorName:
+    Type: String
+    Default: aws-controltower-ConfigAggregatorForOrganizations
+
+  LogLevel:
+    Type: String
+    Default: INFO
+
+Resources:
+  Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src
+      Handler: function.lambda_handler
+      Environment:
+        Variables:
+          LOG_LEVEL: !Ref LogLevel
+          AGGREGATOR_NAME: !Ref AggregatorName
+          TOPIC_ARN: !Ref TopicArn
+      Runtime: python3.13
+      Timeout: 60
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+                - config:Select*
+                - sns:Publish
+              Resource: "*"
+      Events:
+        WeeklySchedule:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: cron(0 17 ? * FRI *)
+            ScheduleExpressionTimezone: Asia/Tokyo
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${Function}
+      RetentionInDays: 14
