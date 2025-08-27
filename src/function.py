@@ -85,11 +85,15 @@ def lambda_handler(event, context):
                     Expression=resource_definition["query"]
                 )
 
-            logger.debug("Response: %s", response)
+            logger.debug("Response:")
+            logger.debug(json.dumps(response))
 
             items = [json.loads(result) for result in response.get("Results", [])]
 
             for item in items:
+                logger.debug("Item:")
+                logger.debug(json.dumps(item))
+
                 if "tags" in item:
                     name_tag = next((tag["value"] for tag in item["tags"] if tag["key"] == "Name"), None)
                     item["tags.Name"] = name_tag
