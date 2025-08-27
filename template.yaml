@@ -43,6 +43,8 @@ Resources:
             ScheduleExpressionTimezone: Asia/Tokyo
 
   LogGroup:
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub /aws/lambda/${Function}
