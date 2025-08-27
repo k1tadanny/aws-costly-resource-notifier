@@ -15,12 +15,13 @@ def lambda_handler(event, context):
     config = boto3.client("config")
 
     resource_definitions = {
-        "RDSInstances": {
+        "RunningRDSInstances": {
             "query": """
-                SELECT resourceName, configuration.dBInstanceStatus, awsRegion, accountId
+                SELECT resourceName, awsRegion, accountId
                 WHERE resourceType = 'AWS::RDS::DBInstance'
+                    AND configuration.dBInstanceStatus = 'available'
             """,
-            "field_order": ["resourceName", "configuration.dBInstanceStatus", "awsRegion", "accountId"]
+            "field_order": ["resourceName", "awsRegion", "accountId"]
         },
         "RunningEC2Instances": {
             "query": """
